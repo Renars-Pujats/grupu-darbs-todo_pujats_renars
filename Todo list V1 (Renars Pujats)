@@ -31,27 +31,61 @@
 <script>
 function addTask() {
     let input = document.getElementById("taskInput");
+ let priority = document.getElementById("prioritySelect").value;
     let list = document.getElementById("taskList");
 
     if (input.value === "") return;
 
-    list.innerHTML += `
+let Krasas;
+    let PogasTeksts;
+
+    if (priority === "secondary") {
+        Krasas = "btn-secondary";
+        PogasTeksts = "Zema";
+    } else if (priority === "warning") {
+        Krasas = "btn-warning";
+        PogasTeksts = "Vidēja";
+    } else {
+        Krasas = "btn-danger";
+        PogasTeksts = "SVARĪGI!";
+    }
+
+
+  list.innerHTML += `
         <li onclick="izsvitrot(this)" class="list-group-item d-flex justify-content-between align-items-center">
-                ${input.value}
+            <div class="d-flex align-items-center">
+         <button class="btn btn-sm ${Krasas} me-2" disabled>${PogasTeksts}</button>
+              <span> ${input.value}
             </span>
+            </div>
             <button class="btn btn-danger btn-sm"
                 onclick="this.parentElement.remove()">
                 Dzēst
             </button>
         </li>
     `;
-
-    input.value = "";
-}
+    saveData();
+  input.value = "";
+} 
 function izsvitrot(elements) {
     console.log(elements.closest("li"));
     elements.closest("li").classList.toggle("izsvitrots");
+     saveData();
 }
+
+function saveData() {
+    let listHTML = document.getElementById("taskList").innerHTML;
+    localStorage.setItem("li", JSON.stringify(listHTML));
+}
+
+function loadData() {
+let saved = JSON.parse(localStorage.getItem("li"));
+if (saved) { 
+    document.getElementById("taskList").innerHTML = saved;
+}
+}
+
+loadData();
 </script>
 
 </body>
