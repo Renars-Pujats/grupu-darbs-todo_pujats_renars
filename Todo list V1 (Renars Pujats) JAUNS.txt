@@ -2,94 +2,194 @@
 <html lang="lv">
 <head>
 <meta charset="UTF-8">
-<title>Kas ir jāizdara?</title>
+<title>Todo List V3</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
 <style>
-.izsvitrots {
+.izsvitrots{
 text-decoration: line-through;
 color: gray;
 }
 </style>
 </head>
+
 <body class="bg-light">
 
 <div class="container mt-5">
+
+<h3 class="text-center mb-4">Todo List V3</h3>
+
 <div class="card">
 <div class="card-body">
-<h3>Mani darbi</h3>
 
 <div class="input-group mb-3">
-<select id="prioritySelect" class="form-select" style="max-width=15px;">
+
+<select id="prioritySelect" class="form-select" style="max-width:120px;">
 <option value="secondary">Zema</option>
-<option value="warning" selected> Vidēja</option>
-<option value="danger">SVARĪGI!</option>
+<option value="warning" selected>Vidēja</option>
+<option value="danger">SVARĪGI</option>
 </select>
-<input type="text" id="taskInput" class="form-control" placeholder="Ievadi darbu">
+
+<input type="text" id="taskInput" class="form-control" placeholder="Ieraksti darbu...">
+
 <button class="btn btn-primary" onclick="addTask()">Pievienot</button>
+
 </div>
+
+
+<input type="text" id="searchInput" class="form-control mb-3"
+placeholder="Meklēt uzdevumu..."
+onkeyup="searchTasks()">
+
+
+<div class="btn-group mb-3">
+
+<button class="btn btn-secondary" onclick="filterTasks('all')">Visi</button>
+
+<button class="btn btn-outline-secondary" onclick="filterTasks('active')">Aktīvie</button>
+
+<button class="btn btn-outline-secondary" onclick="filterTasks('done')">Pabeigtie</button>
+
+</div>
+
 
 <ul id="taskList" class="list-group"></ul>
+
 </div>
 </div>
 </div>
+
 
 <script>
-function addTask() {
-let input = document.getElementById("taskInput");
-let priority = document.getElementById("prioritySelect").value;
-let list = document.getElementById("taskList");
 
-loadData();
+function addTask(){
 
-if (input.value === "") return;
+let input=document.getElementById("taskInput");
+let priority=document.getElementById("prioritySelect").value;
+let list=document.getElementById("taskList");
 
-let Krasas;
-let PogasTeksts;
+if(input.value==="") return;
 
-if (priority === "secondary") {
-Krasas = "btn-secondary";
-PogasTeksts = "Zema";
-} else if (priority === "warning") {
-Krasas = "btn-warning";
-PogasTeksts = "Vidēja";
-} else {
-Krasas = "btn-danger";
-PogasTeksts = "SVARĪGI!";
+let krasas="";
+let teksts="";
+
+if(priority==="secondary"){
+krasas="btn-secondary";
+teksts="Zema";
+}
+else if(priority==="warning"){
+krasas="btn-warning";
+teksts="Vidēja";
+}
+else{
+krasas="btn-danger";
+teksts="SVARĪGI";
 }
 
- list.innerHTML += `
-<li onclick="izsvitrot(this)" class="list-group-item d-flex justify-content-between align-items-center">
-<div class="d-flex align-items-center">
-<button class="btn btn-sm ${Krasas} me-2" disabled>${PogasTeksts}</button>
-<span> ${input.value}</span>
+list.innerHTML+=`
+
+<li onclick="toggleDone(this)" class="list-group-item d-flex justify-content-between align-items-center">
+
+<div>
+
+<button class="btn btn-sm ${krasas} me-2" disabled>${teksts}</button>
+
+<span>${input.value}</span>
+
 </div>
+
 <button class="btn btn-danger btn-sm"
-onclick="this.parentElement.remove()">
+onclick="this.closest('li').remove(); saveData();">
 Dzēst
 </button>
+
 </li>
+
 `;
 
+input.value="";
 saveData();
-input.value = "";
+
 }
 
-function izsvitrot(elements) {
-console.log(elements.closest("li"));
-elements.closest("li").classList.toggle("izsvitrots");
+
+
+function toggleDone(el){
+
+el.classList.toggle("izsvitrots");
+
 saveData();
+
 }
 
-function saveData() {
-let listHTML = document.getElementById("taskList").innerHTML;
-localStorage.setItem("li", JSON.stringify(listHTML));
+
+
+function filterTasks(type){
+
+let tasks=document.querySelectorAll("#taskList li");
+
+tasks.forEach(function(task){
+
+let done=task.classList.contains("izsvitrots");
+
+if(type==="all"){
+task.style.display="flex";
 }
 
-function loadData() {
-let saved = JSON.parse(localStorage.getItem("li"));
-if (saved) { 
-document.getElementById("taskList").innerHTML = saved;
+if(type==="active"){
+task.style.display=done?"none":"flex";
 }
+
+if(type==="done"){
+task.style.display=done?"flex":"none";
+}
+
+});
+
+}
+
+
+
+function searchTasks(){
+
+let input=document.getElementById("searchInput").value.toLowerCase();
+
+let tasks=document.querySelectorAll("#taskList li");
+
+tasks.forEach(function(task){
+
+let text=task.innerText.toLowerCase();
+
+if(text.includes(input)){
+task.style.display="flex";
+}else{
+task.style.display="none";
+}
+
+});
+
+}
+
+
+
+function saveData(){
+
+let listHTML=document.getElementById("taskList").innerHTML;
+
+localStorage.setItem("tasks",JSON.stringify(listHTML));
+
+}
+
+
+
+function loadData(){
+
+let saved=JSON.parse(localStorage.getItem("tasks"));
+
+if(saved){
+document.getElementById("taskList").innerHTML=saved;
+}
+
 }
 
 loadData();
